@@ -17,3 +17,5 @@ const getRandom = function (min, max, precision = 0) {
   let rand = min + Math.random() * (max - min);
   return +rand.toFixed(precision);
 }
+
+getRandom(1.1, 1.2, 2);
