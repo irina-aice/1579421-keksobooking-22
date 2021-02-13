@@ -7,13 +7,7 @@ const TYPES = [
   'bungalow',
 ];
 
-const CHECKIN_HOURS = [
-  '12:00',
-  '13:00',
-  '14:00',
-];
-
-const CHECKOUT_HOURS = [
+const HOURS = [
   '12:00',
   '13:00',
   '14:00',
@@ -38,10 +32,8 @@ const PHOTOS = [
 
 //генерирование объекта author
 const getAuthor = function () {
-  const randomImageNumber = getRandom(1, 8);
-
   return {
-    avatar: 'img/avatars/user' + '0' + randomImageNumber + '.png',
+    avatar: `img/avatars/user0${getRandom(1, 8)}.png`,
   };
 };
 
@@ -76,8 +68,8 @@ const getOffer = function (location = getLocation()) {
     type: getRandomArrayElement(TYPES),
     rooms: getRandom(0, 1000000),
     guests: getRandom(0, 1000000),
-    checkin: getRandomArrayElement(CHECKIN_HOURS),
-    checkout: getRandomArrayElement(CHECKOUT_HOURS),
+    checkin: getRandomArrayElement(HOURS),
+    checkout: getRandomArrayElement(HOURS),
     features: unique(similarFeatures),
     description: 'Потрясающий вид, расположен в тихом месте в центре города.',
     photos: unique(similarPhotos),
@@ -98,3 +90,5 @@ for (let i = 0; i < 10; i++) {
     location: location,
   });
 }
+
+export {rents, getOffer, getAuthor, getLocation};
