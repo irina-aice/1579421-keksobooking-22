@@ -50,13 +50,13 @@ rents.forEach((rent, i) => {
     popupElement.querySelector('.popup__type').classList.add('hidden');
   }
 
-  if (offer.rooms || offer.guests) {
+  if (offer.rooms && offer.guests) {
     popupElement.querySelector('.popup__text--capacity').textContent = `${offer.rooms} комнаты для ${offer.guests} гостей`;
   } else {
     popupElement.querySelector('.popup__text--capacity').classList.add('hidden');
   }
 
-  if (offer.checkin || offer.checkout) {
+  if (offer.checkin && offer.checkout) {
     popupElement.querySelector('.popup__text--time').textContent = `Заезд после ${offer.checkin}, выезд до ${offer.checkout}`;
   } else {
     popupElement.querySelector('.popup__text--time').classList.add('hidden');
