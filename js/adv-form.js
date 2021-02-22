@@ -1,7 +1,16 @@
+import {map} from './map.js';
+
+const form = document.querySelector('.ad-form');
+const formElements = form.querySelectorAll('fieldset');
 const typeSelect = document.querySelector('#type');
 const priceInput = document.querySelector('#price');
 const timeinSelect = document.querySelector('#timein');
 const timeoutSelect = document.querySelector('#timeout');
+
+form.classList.add('ad-form--disabled');
+formElements.forEach((formElement) => {
+  formElement.setAttribute('disabled', '');
+});
 
 typeSelect.addEventListener('change', () => {
   let placeholder;
@@ -27,5 +36,10 @@ timeoutSelect.addEventListener('change', () => {
   timeinSelect.value = timeoutSelect.value;
 });
 
+map.addHandler('load', function () {
+  form.classList.remove('ad-form--disabled');
 
-
+  formElements.forEach((formElement) => {
+    formElement.removeAttribute('disabled');
+  });
+})
