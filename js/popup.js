@@ -1,7 +1,4 @@
-import {rents} from './data.js';
-
 const cardTemplate = document.querySelector('#card').content;
-const mapCanvas = document.querySelector('.map__canvas');
 
 const getOfferTypeLabel = function(offer) {
   let offerType;
@@ -21,7 +18,7 @@ const getOfferTypeLabel = function(offer) {
   return offerType;
 }
 
-rents.forEach((rent, i) => {
+const getRentPopup = (rent) => {
   const offer = rent.offer;
 
   const popupElement = cardTemplate.cloneNode(true);
@@ -102,7 +99,7 @@ rents.forEach((rent, i) => {
     popupElement.querySelector('.popup__avatar').classList.add('hidden');
   }
 
-  if (i === 0) {
-    mapCanvas.appendChild(popupElement);
-  }
-});
+  return popupElement;
+}
+
+export {getRentPopup};
