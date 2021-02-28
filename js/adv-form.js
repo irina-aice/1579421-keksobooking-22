@@ -1,4 +1,5 @@
 import {map} from './map.js';
+import {sendAdvForm} from './fetch.js';
 
 const form = document.querySelector('.ad-form');
 const formElements = form.querySelectorAll('fieldset');
@@ -8,6 +9,7 @@ const timeinSelect = document.querySelector('#timein');
 const timeoutSelect = document.querySelector('#timeout');
 const roomNumberSelect = document.querySelector('#room_number');
 const capacitySelect = document.querySelector('#capacity');
+const resetButton = document.querySelector('.ad-form__reset');
 
 form.classList.add('ad-form--disabled');
 formElements.forEach((formElement) => {
@@ -89,4 +91,64 @@ checkCapacity();
 roomNumberSelect.addEventListener('change', checkCapacity);
 capacitySelect.addEventListener('change', checkCapacity);
 
+const resetForm = function() {
+  form.reset();
+  checkCapacity();
+  map.fire('adv-form-submitted');
+}
 
+const fetchOnSuccess = function() {
+  const main = document.querySelector('main');
+  const successTemplate = document.querySelector('#success').content.cloneNode(true);
+  const successBlock = successTemplate.querySelector('.success');
+
+  main.appendChild(successTemplate);
+
+  successBlock.addEventListener('click', () => {
+    successBlock.classList.add('visually-hidden');
+  });
+
+  window.addEventListener('keydown', (evt) => {
+    if (evt.code === 'Escape' && !successBlock.classList.contains('visually-hidden')) {
+      successBlock.classList.add('visually-hidden');
+    }
+  })
+
+  resetForm();
+};
+
+const fetchOnError = function() {
+  const main = document.querySelector('main');
+  const errorTemplate = document.querySelector('#error').content.cloneNode(true);
+  const errorBlock = errorTemplate.querySelector('.error');
+  const errorButton = errorTemplate.querySelector('.error__button');
+
+  main.appendChild(errorTemplate);
+
+  errorButton.addEventListener('click', (evt) => {
+    evt.stopPropagation();
+    errorBlock.classList.add('visually-hidden');
+  })
+
+  errorBlock.addEventListener('click', () => {
+    errorBlock.classList.add('visually-hidden');
+  });
+
+  window.addEventListener('keydown', (evt) => {
+    if (evt.code === 'Escape' && !errorBlock.classList.contains('visually-hidden')) {
+      errorBlock.classList.add('visually-hidden');
+    }
+  })
+}
+
+form.addEventListener('submit', (evt) => {
+  evt.preventDefault();
+
+  sendAdvForm(fetchOnSuccess, fetchOnError, form);
+});
+
+resetButton.addEventListener('click', (evt) => {
+  evt.preventDefault();
+
+  resetForm();
+});

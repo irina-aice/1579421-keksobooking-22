@@ -29,7 +29,6 @@ const PHOTOS = [
 ];
 
 
-
 //генерирование объекта author
 const getAuthor = function () {
   return {
