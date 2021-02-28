@@ -1,14 +1,15 @@
 /* global L:readonly */
-import {rents} from './data.js';
 import {getRentPopup} from './popup.js';
+import {fetchMapData} from './fetch.js';
 
 const addressInput = document.querySelector('#address');
+const mapCenterLatLng = {
+  lat: 35.6895000,
+  lng: 139.6917100,
+};
 
 const map = L.map('map-canvas')
-  .setView({
-    lat: 35.6895000,
-    lng: 139.6917100,
-  }, 10);
+  .setView(mapCenterLatLng, 10);
 
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
   {
@@ -47,24 +48,59 @@ mainPinMarker.on('moveend', (evt) => {
   addressInput.value = `${evt.target.getLatLng().lat.toFixed(5)}, ${evt.target.getLatLng().lng.toFixed(5)}`;
 });
 
-rents.forEach((rent) => {
-  const popupHtml = getRentPopup(rent, true);
+map.on('adv-form-submitted', () => {
+  map.setView(mapCenterLatLng, 10);
+  mainPinMarker.setLatLng(mapCenterLatLng).fire('moveend');
+});
 
-  const pinMarker = L.marker(
-    {
-      lat: rent.location.x,
-      lng: rent.location.y,
-    },
-    {
-      icon: pinIcon,
-    });
+const fetchOnSuccess = function(rents) {
+  rents.forEach((rent) => {
+    const popupHtml = getRentPopup(rent, true);
 
-  //вставка DocumentFragment в качестве контента для popup вызывает странное поведение,
-  //поэтому DocumentFragment преобразуем в html строку
-  const helperDiv = document.createElement('div');
-  helperDiv.appendChild(popupHtml);
+    const pinMarker = L.marker(
+      {
+        lat: rent.location.lat,
+        lng: rent.location.lng,
+      },
+      {
+        icon: pinIcon,
+      });
 
-  pinMarker.bindPopup(helperDiv.innerHTML).addTo(map);
-})
+    //вставка DocumentFragment в качестве контента для popup вызывает странное поведение,
+    //поэтому DocumentFragment преобразуем в html строку
+    const helperDiv = document.createElement('div');
+    helperDiv.appendChild(popupHtml);
+
+    pinMarker.bindPopup(helperDiv.innerHTML).addTo(map);
+  })
+};
+
+const fetchOnError = function(err) {
+  const main = document.querySelector('main');
+  const errorTemplate = document.querySelector('#error-data').content.cloneNode(true);
+  const errorBlock = errorTemplate.querySelector('.error');
+  const errorButton = errorTemplate.querySelector('.error__button');
+
+  errorTemplate.querySelector('.error__details').textContent = err;
+
+  main.appendChild(errorTemplate);
+
+  errorButton.addEventListener('click', (evt) => {
+    evt.stopPropagation();
+    errorBlock.classList.add('visually-hidden');
+  })
+
+  errorBlock.addEventListener('click', () => {
+    errorBlock.classList.add('visually-hidden');
+  });
+
+  window.addEventListener('keydown', (evt) => {
+    if (evt.code === 'Escape' && !errorBlock.classList.contains('visually-hidden')) {
+      errorBlock.classList.add('visually-hidden');
+    }
+  })
+}
+
+fetchMapData(fetchOnSuccess, fetchOnError);
 
 export {map};

@@ -926,7 +926,7 @@ fieldset {
   position: fixed;
   top: 0;
   left: 0;
-  z-index: 2;
+  z-index: 1001;
 
   -webkit-box-sizing: border-box;
           box-sizing: border-box;
@@ -974,6 +974,12 @@ fieldset {
 
 .error__message::before {
   background-image: url("../img/muffin-red.svg");
+}
+
+.error__details {
+  color: #ffffff;
+  font-size: 30px;
+  font-weight: 700;
 }
 
 .error__button {
