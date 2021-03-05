@@ -2,6 +2,7 @@
 import {getRentPopup} from './popup.js';
 import {fetchMapData} from './fetch.js';
 
+const RENTS_COUNT = 10;
 const addressInput = document.querySelector('#address');
 const mapCenterLatLng = {
   lat: 35.6895000,
@@ -10,6 +11,8 @@ const mapCenterLatLng = {
 
 const map = L.map('map-canvas')
   .setView(mapCenterLatLng, 10);
+
+const markers = L.layerGroup().addTo(map);
 
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
   {
@@ -39,11 +42,6 @@ const mainPinMarker = L.marker(
 
 mainPinMarker.addTo(map);
 
-map.addHandler('load', function () {
-  addressInput.setAttribute('readonly', '');
-  addressInput.value = `${mainPinMarker.getLatLng().lat.toFixed(5)}, ${mainPinMarker.getLatLng().lng.toFixed(5)}`;
-});
-
 mainPinMarker.on('moveend', (evt) => {
   addressInput.value = `${evt.target.getLatLng().lat.toFixed(5)}, ${evt.target.getLatLng().lng.toFixed(5)}`;
 });
@@ -53,7 +51,15 @@ map.on('adv-form-submitted', () => {
   mainPinMarker.setLatLng(mapCenterLatLng).fire('moveend');
 });
 
-const fetchOnSuccess = function(rents) {
+const renderMarkers = function (rents) {
+  markers.clearLayers();
+
+  rents.slice(0, RENTS_COUNT).forEach((rent) => {
+    markers.addLayer(rent.pointerMarker);
+  })
+}
+
+const fetchOnSuccess = function (rents) {
   rents.forEach((rent) => {
     const popupHtml = getRentPopup(rent, true);
 
@@ -66,16 +72,22 @@ const fetchOnSuccess = function(rents) {
         icon: pinIcon,
       });
 
-    //вставка DocumentFragment в качестве контента для popup вызывает странное поведение,
-    //поэтому DocumentFragment преобразуем в html строку
     const helperDiv = document.createElement('div');
     helperDiv.appendChild(popupHtml);
 
-    pinMarker.bindPopup(helperDiv.innerHTML).addTo(map);
+    pinMarker.bindPopup(helperDiv.innerHTML);
+
+    rent.pointerMarker = pinMarker;
   })
+
+
+  renderMarkers(rents);
+
+
+  map.fire('load-all-data', {rents: rents});
 };
 
-const fetchOnError = function(err) {
+const fetchOnError = function (err) {
   const main = document.querySelector('main');
   const errorTemplate = document.querySelector('#error-data').content.cloneNode(true);
   const errorBlock = errorTemplate.querySelector('.error');
@@ -101,6 +113,11 @@ const fetchOnError = function(err) {
   })
 }
 
-fetchMapData(fetchOnSuccess, fetchOnError);
+map.addHandler('load', function () {
+  addressInput.setAttribute('readonly', '');
+  addressInput.value = `${mainPinMarker.getLatLng().lat.toFixed(5)}, ${mainPinMarker.getLatLng().lng.toFixed(5)}`;
 
-export {map};
+  fetchMapData(fetchOnSuccess, fetchOnError);
+});
+
+export {map, renderMarkers};
