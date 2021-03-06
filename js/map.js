@@ -2,7 +2,6 @@
 import {getRentPopup} from './popup.js';
 import {fetchMapData} from './fetch.js';
 
-const RENTS_COUNT = 10;
 const addressInput = document.querySelector('#address');
 const mapCenterLatLng = {
   lat: 35.6895000,
@@ -54,7 +53,7 @@ map.on('adv-form-submitted', () => {
 const renderMarkers = function (rents) {
   markers.clearLayers();
 
-  rents.slice(0, RENTS_COUNT).forEach((rent) => {
+  rents.forEach((rent) => {
     markers.addLayer(rent.pointerMarker);
   })
 }
@@ -79,10 +78,6 @@ const fetchOnSuccess = function (rents) {
 
     rent.pointerMarker = pinMarker;
   })
-
-
-  renderMarkers(rents);
-
 
   map.fire('load-all-data', {rents: rents});
 };

@@ -1,6 +1,7 @@
 import {map, renderMarkers} from './map.js';
 
 let rents;
+const RENTS_COUNT = 10;
 const form = document.querySelector('.map__filters');
 const formElements = form.querySelectorAll('.map__filter, fieldset');
 const housingTypeSelect = form.querySelector('#housing-type');
@@ -16,6 +17,70 @@ formElements.forEach((formElement) => {
   formElement.setAttribute('disabled', '');
 });
 
+const filterCallback = function () {
+  let filteredRents;
+  const housingRoomsValue = +housingRoomsSelect.value;
+  const housingGuestsValue = +housingGuestsSelect.value;
+
+  filteredRents = rents.filter((rent, i) => {
+    if (i >= RENTS_COUNT) {
+      return false;
+    }
+
+    const features = rent.offer.features;
+    let isValidOffer = true;
+    let price = rent.offer.price;
+
+    if (housingTypeSelect.value !== SELECT_ANY) {
+      if (rent.offer.type !== housingTypeSelect.value) {
+        isValidOffer = false;
+      }
+    }
+
+    if (housingPriceSelect.value !== SELECT_ANY) {
+      if (housingPriceSelect.value === 'middle' && (price < 10000 || price > 50000)) {
+        isValidOffer = false;
+      } else if (housingPriceSelect.value === 'low' && price >= 10000) {
+        isValidOffer = false;
+      } else if (housingPriceSelect.value === 'high' && price <= 50000) {
+        isValidOffer = false;
+      }
+    }
+
+    if (housingRoomsSelect.value !== SELECT_ANY) {
+      if (rent.offer.rooms !== housingRoomsValue) {
+        isValidOffer = false;
+      }
+    }
+
+    if (housingGuestsSelect.value !== SELECT_ANY) {
+      if (rent.offer.guests !== housingGuestsValue) {
+        isValidOffer = false;
+      }
+    }
+
+    housingFeaturesCheckboxList.forEach((checkbox) => {
+      if (checkbox.checked) {
+        let isValidFeature = false;
+
+        features.forEach((feature) => {
+          if (feature === checkbox.value) {
+            isValidFeature = true;
+          }
+        });
+
+        if (!isValidFeature) {
+          isValidOffer = false;
+        }
+      }
+    });
+
+    return isValidOffer;
+  });
+
+  renderMarkers(filteredRents);
+}
+
 map.on('load-all-data', (data) => {
   rents = data.rents;
 
@@ -23,96 +88,18 @@ map.on('load-all-data', (data) => {
   formElements.forEach((formElement) => {
     formElement.removeAttribute('disabled');
   });
+
+  filterCallback();
 });
 
-const formChanged = function () {
-  let filteredRents = rents;
-  const housingRoomsValue = +housingRoomsSelect.value;
-  const housingGuestsValue = +housingGuestsSelect.value;
+housingTypeSelect.addEventListener('change', filterCallback);
 
+housingPriceSelect.addEventListener('change', filterCallback);
 
-  if (housingTypeSelect.value !== SELECT_ANY) {
-    filteredRents = filteredRents.filter((rent) => {
-      let result = false;
+housingRoomsSelect.addEventListener('change', filterCallback);
 
-      if (rent.offer.type === housingTypeSelect.value) {
-        result = true;
-      }
-
-      return result;
-    });
-  }
-
-  if (housingPriceSelect.value !== SELECT_ANY) {
-    filteredRents = filteredRents.filter((rent) => {
-      let price = rent.offer.price;
-      let result = false;
-
-      if (housingPriceSelect.value === 'middle' && price >= 10000 && price <= 50000) {
-        result = true;
-      } else if (housingPriceSelect.value === 'low' && price < 10000) {
-        result = true;
-      } else if (housingPriceSelect.value === 'high' && price > 50000) {
-        result = true;
-      }
-
-      return result;
-    });
-  }
-
-
-  if (housingRoomsSelect.value !== SELECT_ANY) {
-    filteredRents = filteredRents.filter((rent) => {
-      let result = false;
-
-      if (rent.offer.rooms === housingRoomsValue) {
-        result = true;
-      }
-
-      return result;
-    })
-  }
-
-  if (housingGuestsSelect.value !== SELECT_ANY) {
-    filteredRents = filteredRents.filter((rent) => {
-      let result = false;
-
-      if (rent.offer.guests === housingGuestsValue) {
-        result = true;
-      }
-
-      return result;
-    });
-  }
-
-  housingFeaturesCheckboxList.forEach((checkbox) => {
-    if (checkbox.checked) {
-      filteredRents = filteredRents.filter((rent) => {
-        let result = false;
-        const features = rent.offer.features;
-
-        features.forEach((feature) => {
-          if (checkbox.value === feature) {
-            result = true;
-          }
-        });
-
-        return result;
-      });
-    }
-  });
-
-  renderMarkers(filteredRents);
-}
-
-housingTypeSelect.addEventListener('change', formChanged);
-
-housingPriceSelect.addEventListener('change', formChanged);
-
-housingRoomsSelect.addEventListener('change', formChanged);
-
-housingGuestsSelect.addEventListener('change', formChanged);
+housingGuestsSelect.addEventListener('change', filterCallback);
 
 housingFeaturesCheckboxList.forEach((checkbox) => {
-  checkbox.addEventListener('change', formChanged);
+  checkbox.addEventListener('change', filterCallback);
 });
