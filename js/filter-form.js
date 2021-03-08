@@ -1,3 +1,4 @@
+/* global _:readonly */
 import {map, renderMarkers} from './map.js';
 
 let rents;
@@ -18,44 +19,42 @@ formElements.forEach((formElement) => {
 });
 
 const filterCallback = function () {
-  let filteredRents;
+  let filteredRents = [];
   const housingRoomsValue = +housingRoomsSelect.value;
   const housingGuestsValue = +housingGuestsSelect.value;
 
-  filteredRents = rents.filter((rent, i) => {
-    if (i >= RENTS_COUNT) {
-      return false;
-    }
+  for (let i = 0; i < rents.length; i++) {
+    const rent = rents[i];
 
     const features = rent.offer.features;
-    let isValidOffer = true;
+    let isValidFeatures = true;
     let price = rent.offer.price;
 
     if (housingTypeSelect.value !== SELECT_ANY) {
       if (rent.offer.type !== housingTypeSelect.value) {
-        isValidOffer = false;
+        continue;
       }
     }
 
     if (housingPriceSelect.value !== SELECT_ANY) {
       if (housingPriceSelect.value === 'middle' && (price < 10000 || price > 50000)) {
-        isValidOffer = false;
+        continue;
       } else if (housingPriceSelect.value === 'low' && price >= 10000) {
-        isValidOffer = false;
+        continue;
       } else if (housingPriceSelect.value === 'high' && price <= 50000) {
-        isValidOffer = false;
+        continue;
       }
     }
 
     if (housingRoomsSelect.value !== SELECT_ANY) {
       if (rent.offer.rooms !== housingRoomsValue) {
-        isValidOffer = false;
+        continue;
       }
     }
 
     if (housingGuestsSelect.value !== SELECT_ANY) {
       if (rent.offer.guests !== housingGuestsValue) {
-        isValidOffer = false;
+        continue;
       }
     }
 
@@ -70,13 +69,21 @@ const filterCallback = function () {
         });
 
         if (!isValidFeature) {
-          isValidOffer = false;
+          isValidFeatures = false;
         }
       }
     });
 
-    return isValidOffer;
-  });
+    if (!isValidFeatures) {
+      continue;
+    }
+
+    filteredRents.push(rent);
+
+    if (filteredRents.length >= RENTS_COUNT) {
+      break;
+    }
+  }
 
   renderMarkers(filteredRents);
 }
@@ -92,14 +99,19 @@ map.on('load-all-data', (data) => {
   filterCallback();
 });
 
-housingTypeSelect.addEventListener('change', filterCallback);
+let debouncedFilterCallback =  _.debounce(filterCallback, 500, {
+  leading: true,
+  trailing: false,
+});
 
-housingPriceSelect.addEventListener('change', filterCallback);
+housingTypeSelect.addEventListener('change', debouncedFilterCallback);
 
-housingRoomsSelect.addEventListener('change', filterCallback);
+housingPriceSelect.addEventListener('change', debouncedFilterCallback);
 
-housingGuestsSelect.addEventListener('change', filterCallback);
+housingRoomsSelect.addEventListener('change', debouncedFilterCallback);
+
+housingGuestsSelect.addEventListener('change', debouncedFilterCallback);
 
 housingFeaturesCheckboxList.forEach((checkbox) => {
-  checkbox.addEventListener('change', filterCallback);
+  checkbox.addEventListener('change', debouncedFilterCallback);
 });
