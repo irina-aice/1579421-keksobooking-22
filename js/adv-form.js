@@ -1,6 +1,8 @@
 import {map} from './map.js';
 import {sendAdvForm} from './fetch.js';
 
+const FILE_TYPES = ['gif', 'jpg', 'jpeg', 'png'];
+
 const form = document.querySelector('.ad-form');
 const formElements = form.querySelectorAll('fieldset');
 const typeSelect = document.querySelector('#type');
@@ -10,6 +12,10 @@ const timeoutSelect = document.querySelector('#timeout');
 const roomNumberSelect = document.querySelector('#room_number');
 const capacitySelect = document.querySelector('#capacity');
 const resetButton = document.querySelector('.ad-form__reset');
+const avatarFileChooser = document.querySelector('.ad-form__field input[type=file]');
+const avatarPreview = document.querySelector('.ad-form-header__preview img');
+const photoFileChooser = document.querySelector('.ad-form__upload input[type=file]');
+const photoPreview = document.querySelector('.ad-form__photo');
 
 form.classList.add('ad-form--disabled');
 formElements.forEach((formElement) => {
@@ -151,4 +157,40 @@ resetButton.addEventListener('click', (evt) => {
   evt.preventDefault();
 
   resetForm();
+});
+
+avatarFileChooser.addEventListener('change', () => {
+  const file = avatarFileChooser.files[0];
+  const fileName = file.name.toLowerCase();
+  const matches = FILE_TYPES.some((it) => {
+    return fileName.endsWith(it);
+  })
+
+  if (matches) {
+    const reader = new FileReader();
+
+    reader.readAsDataURL(file);
+
+    reader.addEventListener('load', () => {
+      avatarPreview.src = reader.result;
+    });
+  }
+});
+
+photoFileChooser.addEventListener('change', () => {
+  const file = photoFileChooser.files[0];
+  const fileName = file.name.toLowerCase();
+  const matches = FILE_TYPES.some((it) => {
+    return fileName.endsWith(it);
+  })
+
+  if (matches) {
+    const reader = new FileReader();
+
+    reader.readAsDataURL(file);
+
+    reader.addEventListener('load', () => {
+      photoPreview.style.backgroundImage = `url(${reader.result})`;
+    });
+  }
 });
