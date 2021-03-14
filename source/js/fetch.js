@@ -23,7 +23,7 @@ const fetchMapData = (onSuccess, onError) => {
 
 const sendAdvForm = (onSuccess, onError, formData) => {
   return fetch(
-    'https://22.javascript.pages.academy/keksobooking2',
+    'https://22.javascript.pages.academy/keksobooking',
     {
       method: 'POST',
       credentials: 'same-origin',

@@ -92,20 +92,33 @@ const fetchOnError = function (err) {
 
   main.appendChild(errorTemplate);
 
-  errorButton.addEventListener('click', (evt) => {
+  const closeErrorPopup = function () {
+    errorBlock.classList.add('visually-hidden');
+
+    errorButton.removeEventListener('click', onErrorButtonClickHandler);
+    errorBlock.removeEventListener('click', onErrorBlockClickHandler);
+    window.removeEventListener('keydown', onErrorPopupEscKeydownHandler);
+  }
+
+  const onErrorButtonClickHandler = function (evt) {
     evt.stopPropagation();
-    errorBlock.classList.add('visually-hidden');
-  })
 
-  errorBlock.addEventListener('click', () => {
-    errorBlock.classList.add('visually-hidden');
-  });
+    closeErrorPopup();
+  }
 
-  window.addEventListener('keydown', (evt) => {
-    if (evt.code === 'Escape' && !errorBlock.classList.contains('visually-hidden')) {
-      errorBlock.classList.add('visually-hidden');
+  const onErrorBlockClickHandler = function () {
+    closeErrorPopup();
+  }
+
+  const onErrorPopupEscKeydownHandler = function (evt) {
+    if (evt.code === 'Escape') {
+      closeErrorPopup();
     }
-  })
+  }
+
+  errorButton.addEventListener('click', onErrorButtonClickHandler);
+  errorBlock.addEventListener('click', onErrorBlockClickHandler);
+  window.addEventListener('keydown', onErrorPopupEscKeydownHandler);
 }
 
 map.addHandler('load', function () {

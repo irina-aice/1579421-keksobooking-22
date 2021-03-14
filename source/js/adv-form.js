@@ -110,15 +110,25 @@ const fetchOnSuccess = function() {
 
   main.appendChild(successTemplate);
 
-  successBlock.addEventListener('click', () => {
+  const closeSuccessPopup = function () {
     successBlock.classList.add('visually-hidden');
-  });
 
-  window.addEventListener('keydown', (evt) => {
-    if (evt.code === 'Escape' && !successBlock.classList.contains('visually-hidden')) {
-      successBlock.classList.add('visually-hidden');
+    successBlock.removeEventListener('click', onSuccessBlockClickHandler);
+    window.removeEventListener('keydown', onSuccessPopupEscKeydownHandler);
+  }
+
+  const onSuccessBlockClickHandler = function () {
+    closeSuccessPopup();
+  }
+
+  const onSuccessPopupEscKeydownHandler = function (evt) {
+    if (evt.code === 'Escape') {
+      closeSuccessPopup();
     }
-  })
+  }
+
+  successBlock.addEventListener('click', onSuccessBlockClickHandler);
+  window.addEventListener('keydown', onSuccessPopupEscKeydownHandler);
 
   resetForm();
 };
@@ -131,20 +141,33 @@ const fetchOnError = function() {
 
   main.appendChild(errorTemplate);
 
-  errorButton.addEventListener('click', (evt) => {
-    evt.stopPropagation();
+  const closeErrorPopup = function () {
     errorBlock.classList.add('visually-hidden');
-  })
 
-  errorBlock.addEventListener('click', () => {
-    errorBlock.classList.add('visually-hidden');
-  });
+    errorButton.removeEventListener('click', onErrorButtonClickHandler);
+    errorBlock.removeEventListener('click', onErrorBlockClickHandler);
+    window.removeEventListener('keydown', onErrorPopupEscKeydownHandler);
+  }
 
-  window.addEventListener('keydown', (evt) => {
-    if (evt.code === 'Escape' && !errorBlock.classList.contains('visually-hidden')) {
-      errorBlock.classList.add('visually-hidden');
+  const onErrorPopupEscKeydownHandler = function (evt) {
+    if (evt.code === 'Escape') {
+      closeErrorPopup();
     }
-  })
+  }
+
+  const onErrorButtonClickHandler = function (evt) {
+    evt.stopPropagation();
+
+    closeErrorPopup();
+  }
+
+  const onErrorBlockClickHandler = function () {
+    closeErrorPopup();
+  }
+
+  errorButton.addEventListener('click', onErrorButtonClickHandler)
+  errorBlock.addEventListener('click', onErrorBlockClickHandler);
+  window.addEventListener('keydown', onErrorPopupEscKeydownHandler);
 }
 
 form.addEventListener('submit', (evt) => {
