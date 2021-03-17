@@ -13,11 +13,6 @@ const housingFeaturesCheckboxList = form.querySelectorAll('.map__checkbox');
 
 const SELECT_ANY = 'any';
 
-form.classList.add('map__filters--disabled');
-formElements.forEach((formElement) => {
-  formElement.setAttribute('disabled', '');
-});
-
 const filterCallback = function () {
   let filteredRents = [];
   const housingRoomsValue = +housingRoomsSelect.value;
@@ -99,10 +94,12 @@ map.on('load-all-data', (data) => {
   filterCallback();
 });
 
-let debouncedFilterCallback =  _.debounce(filterCallback, 500, {
-  leading: true,
-  trailing: false,
+map.on('adv-form-submitted', () => {
+  form.reset();
+  filterCallback();
 });
+
+let debouncedFilterCallback =  _.debounce(filterCallback, 500);
 
 housingTypeSelect.addEventListener('change', debouncedFilterCallback);
 

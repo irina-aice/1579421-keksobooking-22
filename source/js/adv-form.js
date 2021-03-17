@@ -17,11 +17,6 @@ const avatarPreview = document.querySelector('.ad-form-header__preview img');
 const photoFileChooser = document.querySelector('.ad-form__upload input[type=file]');
 const photoPreview = document.querySelector('.ad-form__photo');
 
-form.classList.add('ad-form--disabled');
-formElements.forEach((formElement) => {
-  formElement.setAttribute('disabled', '');
-});
-
 typeSelect.addEventListener('change', () => {
   let placeholder;
   let min;
@@ -58,7 +53,7 @@ map.addHandler('load', function () {
   formElements.forEach((formElement) => {
     formElement.removeAttribute('disabled');
   });
-})
+});
 
 const checkCapacity = function () {
   let customValidityMessage = '';
