@@ -1,21 +1,22 @@
 const cardTemplate = document.querySelector('#card').content;
 
-const getOfferTypeLabel = function(offer) {
-  let offerType;
+const offerTypeValues = {
+  flat: 'Квартира',
+  bungalow: 'Бунгало',
+  house: 'Дом',
+  palace: 'Дворец',
+};
 
-  if (offer.type === 'flat') {
-    offerType = 'Квартира';
-  } else if (offer.type === 'bungalow') {
-    offerType = 'Бунгало';
-  } else if (offer.type === 'house') {
-    offerType = 'Дом';
-  } else if (offer.type === 'palace') {
-    offerType = 'Дворец';
+const getOfferTypeLabel = function(offer) {
+  let offerTypeValue;
+
+  if (offer.type in offerTypeValues) {
+    offerTypeValue = offerTypeValues[offer.type];
   } else {
     throw new Error('Неизвестный тип предложения');
   }
 
-  return offerType;
+  return offerTypeValue;
 }
 
 const getRentPopup = (rent) => {
@@ -59,7 +60,7 @@ const getRentPopup = (rent) => {
     popupElement.querySelector('.popup__text--time').classList.add('hidden');
   }
 
-  if (offer.features) {
+  if (offer.features && offer.features.length > 0) {
     popupElement.querySelectorAll('.popup__feature').forEach((photoFeature) => {
       photoFeature.classList.add('hidden');
     });
@@ -79,7 +80,7 @@ const getRentPopup = (rent) => {
 
   const popupPhotos = popupElement.querySelector('.popup__photos');
 
-  if (offer.photos) {
+  if (offer.photos && offer.photos.length > 0) {
     offer.photos.forEach((photo) => {
       let popupPhoto = popupPhotos.querySelector('.popup__photo').cloneNode(true);
 

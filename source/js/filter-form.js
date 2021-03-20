@@ -13,6 +13,17 @@ const housingFeaturesCheckboxList = form.querySelectorAll('.map__checkbox');
 
 const SELECT_ANY = 'any';
 
+const priceValues = {
+  low: 10000,
+  high: 50000,
+}
+
+const housingPriceValues = {
+  middle: 'middle',
+  low: 'low',
+  high: 'high',
+};
+
 const filterCallback = function () {
   let filteredRents = [];
   const housingRoomsValue = +housingRoomsSelect.value;
@@ -32,11 +43,11 @@ const filterCallback = function () {
     }
 
     if (housingPriceSelect.value !== SELECT_ANY) {
-      if (housingPriceSelect.value === 'middle' && (price < 10000 || price > 50000)) {
+      if (housingPriceSelect.value === housingPriceValues.middle && (price < priceValues.low || price > priceValues.high)) {
         continue;
-      } else if (housingPriceSelect.value === 'low' && price >= 10000) {
+      } else if (housingPriceSelect.value === housingPriceValues.low && price >= priceValues.low) {
         continue;
-      } else if (housingPriceSelect.value === 'high' && price <= 50000) {
+      } else if (housingPriceSelect.value === housingPriceValues.high && price <= priceValues.high) {
         continue;
       }
     }

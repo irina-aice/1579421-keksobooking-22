@@ -1,6 +1,6 @@
 /* global L:readonly */
 import {getRentPopup} from './popup.js';
-import {fetchMapData} from './fetch.js';
+import {fetchMapData, onFetchError} from './fetch.js';
 
 const addressInput = document.querySelector('#address');
 const mapCenterLatLng = {
@@ -58,7 +58,7 @@ const renderMarkers = function (rents) {
   })
 }
 
-const fetchOnSuccess = function (rents) {
+const onFetchSuccess = function (rents) {
   rents.forEach((rent) => {
     const popupHtml = getRentPopup(rent, true);
 
@@ -82,50 +82,11 @@ const fetchOnSuccess = function (rents) {
   map.fire('load-all-data', {rents: rents});
 };
 
-const fetchOnError = function (err) {
-  const main = document.querySelector('main');
-  const errorTemplate = document.querySelector('#error-data').content.cloneNode(true);
-  const errorBlock = errorTemplate.querySelector('.error');
-  const errorButton = errorTemplate.querySelector('.error__button');
-
-  errorTemplate.querySelector('.error__details').textContent = err;
-
-  main.appendChild(errorTemplate);
-
-  const closeErrorPopup = function () {
-    errorBlock.classList.add('visually-hidden');
-
-    errorButton.removeEventListener('click', onErrorButtonClickHandler);
-    errorBlock.removeEventListener('click', onErrorBlockClickHandler);
-    window.removeEventListener('keydown', onErrorPopupEscKeydownHandler);
-  }
-
-  const onErrorButtonClickHandler = function (evt) {
-    evt.stopPropagation();
-
-    closeErrorPopup();
-  }
-
-  const onErrorBlockClickHandler = function () {
-    closeErrorPopup();
-  }
-
-  const onErrorPopupEscKeydownHandler = function (evt) {
-    if (evt.code === 'Escape') {
-      closeErrorPopup();
-    }
-  }
-
-  errorButton.addEventListener('click', onErrorButtonClickHandler);
-  errorBlock.addEventListener('click', onErrorBlockClickHandler);
-  window.addEventListener('keydown', onErrorPopupEscKeydownHandler);
-}
-
 map.addHandler('load', function () {
   addressInput.setAttribute('readonly', '');
   addressInput.value = `${mainPinMarker.getLatLng().lat.toFixed(5)}, ${mainPinMarker.getLatLng().lng.toFixed(5)}`;
 
-  fetchMapData(fetchOnSuccess, fetchOnError);
+  fetchMapData(onFetchSuccess, onFetchError);
 });
 
 export {map, renderMarkers};
